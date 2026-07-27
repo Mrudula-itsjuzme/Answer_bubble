@@ -18,6 +18,17 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@answer-bubble/shared": ["./packages/shared/src/index.ts"],
+      "@answer-bubble/audio": ["./packages/audio/src/index.ts"],
+      "@answer-bubble/transcription": ["./packages/transcription/src/index.ts"],
+      "@answer-bubble/diarization": ["./packages/diarization/src/index.ts"],
+      "@answer-bubble/llm": ["./packages/llm/src/index.ts"],
+      "@answer-bubble/notes": ["./packages/notes/src/index.ts"],
+      "@answer-bubble/memory": ["./packages/memory/src/index.ts"],
+      "@answer-bubble/graph": ["./packages/graph/src/index.ts"],
+      "@answer-bubble/vision": ["./packages/vision/src/index.ts"]
+    }
   }
 }

@@ -12,11 +12,13 @@
   "dependencies": {
     "@answer-bubble/audio": "*",
     "@answer-bubble/diarization": "*",
+    "@answer-bubble/graph": "*",
     "@answer-bubble/llm": "*",
     "@answer-bubble/memory": "*",
     "@answer-bubble/notes": "*",
     "@answer-bubble/shared": "*",
     "@answer-bubble/transcription": "*",
+    "@answer-bubble/vision": "*",
     "@tauri-apps/api": "^2.0.0-rc.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.2.10",

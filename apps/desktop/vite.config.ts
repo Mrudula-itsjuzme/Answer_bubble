@@ -15,6 +15,15 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@answer-bubble/shared': path.resolve(__dirname, '../../packages/shared/src/index.ts'),
+      '@answer-bubble/audio': path.resolve(__dirname, '../../packages/audio/src/index.ts'),
+      '@answer-bubble/transcription': path.resolve(__dirname, '../../packages/transcription/src/index.ts'),
+      '@answer-bubble/diarization': path.resolve(__dirname, '../../packages/diarization/src/index.ts'),
+      '@answer-bubble/llm': path.resolve(__dirname, '../../packages/llm/src/index.ts'),
+      '@answer-bubble/notes': path.resolve(__dirname, '../../packages/notes/src/index.ts'),
+      '@answer-bubble/memory': path.resolve(__dirname, '../../packages/memory/src/index.ts'),
+      '@answer-bubble/graph': path.resolve(__dirname, '../../packages/graph/src/index.ts'),
+      '@answer-bubble/vision': path.resolve(__dirname, '../../packages/vision/src/index.ts'),
     },
   },
   build: {
