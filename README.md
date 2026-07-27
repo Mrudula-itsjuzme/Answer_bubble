@@ -11,6 +11,7 @@
    - Collapsible & resizable modes with micro-animations.
    - **Enforces strict <25 word maximum & 1-3 short lines rule** (e.g. `> Don't forget caching.`, `> Mention quantization.`).
    - Answer ready spring pop badge & quick copy controls.
+   - **Screenshare Transparent & Invisible Overlay**: Designed with native transparent window background (`transparent: true`) and OS window capture exclusion (`WDA_EXCLUDEFROMCAPTURE` on Windows / `NSWindowSharingNone` on macOS), allowing the bubble to float above shared screens without interfering with Zoom/Teams presentations.
 
 2. **System Audio & Mic Capture**:
    - Captures desktop audio (PulseAudio/PipeWire loopback, WASAPI), microphone, or both simultaneously.
