@@ -1,10 +1,6 @@
-import { LLMConfig, MeetingType, Suggestion, AdaptiveProfileType, countWords, truncateToWordLimit, generateId } from '@answer-bubble/shared';
-import { CompressedContext, RollingContextManager } from './context-manager';
-import { generateOpenAISuggestion } from './adapters/openai';
-import { generateAnthropicSuggestion } from './adapters/anthropic';
-import { generateOpenRouterSuggestion } from './adapters/openrouter';
-import { generateOllamaSuggestion } from './adapters/ollama';
-import { generateMockSuggestion } from './adapters/mock';
+import { LLMConfig, MeetingType, Suggestion, AdaptiveProfileType, countWords, truncateToWordLimit, generateId, DEFAULT_SETTINGS } from '@answer-bubble/shared';
+import { RollingContextManager } from './context-manager';
+import { LLMFailoverEngine } from './failover-engine';
 
 export class IntelligentSuggestionEngine {
   private config: LLMConfig;
@@ -60,32 +56,16 @@ RULES:
   ): Promise<Suggestion | null> {
     const context = contextManager.getFormattedContext();
     const systemPrompt = this.getSystemPrompt(context.meetingType, profile, visualContext);
+    const userPrompt = `Recent Transcript:\n${context.recentTranscript.map((s) => `${s.speaker.name}: ${s.text}`).join('\n')}`;
 
-    let rawOutput = 'NONE';
+    const failoverEngine = new LLMFailoverEngine({
+      ...DEFAULT_SETTINGS,
+      llm: this.config,
+    });
 
-    try {
-      switch (this.config.provider) {
-        case 'openai':
-          rawOutput = await generateOpenAISuggestion(this.config, context, systemPrompt);
-          break;
-        case 'anthropic':
-          rawOutput = await generateAnthropicSuggestion(this.config, context, systemPrompt);
-          break;
-        case 'openrouter':
-          rawOutput = await generateOpenRouterSuggestion(this.config, context, systemPrompt);
-          break;
-        case 'ollama':
-          rawOutput = await generateOllamaSuggestion(this.config, context, systemPrompt);
-          break;
-        case 'mock':
-        default:
-          rawOutput = await generateMockSuggestion(context);
-          break;
-      }
-    } catch (err) {
-      console.warn(`LLM provider ${this.config.provider} failed. Falling back to Mock generator:`, err);
-      rawOutput = await generateMockSuggestion(context);
-    }
+    const rawOutput = await failoverEngine.executeWithFailover(systemPrompt, userPrompt, {
+      temperature: this.config.temperature,
+    });
 
     const cleanOutput = rawOutput.trim();
 

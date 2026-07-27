@@ -9,24 +9,34 @@ export async function generateOllamaSuggestion(
   const endpoint = config.endpoint || 'http://localhost:11434/api/generate';
   const model = config.model || 'llama3';
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model,
-      prompt: `${prompt}\n\nMeeting Mode: ${context.meetingType}\nRecent Dialogue:\n${context.recentDialogue}\n\nResponse:`,
-      stream: false,
-      options: {
-        temperature: config.temperature ?? 0.3,
-        num_predict: 60,
-      },
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 1500);
 
-  if (!response.ok) {
-    throw new Error(`Ollama local server error: ${response.statusText}`);
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        prompt: `${prompt}\n\nMeeting Mode: ${context.meetingType}\nRecent Dialogue:\n${context.recentDialogue}\n\nResponse:`,
+        stream: false,
+        options: {
+          temperature: config.temperature ?? 0.3,
+          num_predict: 60,
+        },
+      }),
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`Ollama local server error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.response?.trim() || 'NONE';
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw new Error(`Ollama offline / unreachable: ${String(err)}`);
   }
-
-  const data = await response.json();
-  return data.response?.trim() || 'NONE';
 }

@@ -3,3 +3,4 @@ export * from './event-bus';
 export * from './utils';
 export * from './security';
 export * from './ghost-typing';
+export * from './logger';

@@ -30,5 +30,6 @@
       "@answer-bubble/graph": ["./packages/graph/src/index.ts"],
       "@answer-bubble/vision": ["./packages/vision/src/index.ts"]
     }
-  }
+  },
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

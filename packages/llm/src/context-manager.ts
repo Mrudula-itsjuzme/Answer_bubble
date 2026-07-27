@@ -6,11 +6,12 @@ export interface CompressedContext {
   extractedFacts: string[];
   keyEntities: { people: string[]; projects: string[]; companies: string[] };
   previousSuggestions: string[];
+  recentTranscript: TranscriptSegment[];
 }
 
 export class RollingContextManager {
   private segments: TranscriptSegment[] = [];
-  private maxSegments: number = 15;
+  private maxSegments: number = 25;
   private extractedFacts: Set<string> = new Set();
   private people: Set<string> = new Set();
   private projects: Set<string> = new Set();
@@ -46,21 +47,23 @@ export class RollingContextManager {
   private extractEntitiesAndFacts(segment: TranscriptSegment): void {
     const text = segment.text;
     if (segment.speaker?.name && segment.speaker.name !== 'You') {
-      this.people.add(segment.speaker.name);
+      if (this.people.size < 50) this.people.add(segment.speaker.name);
     }
 
-    // Simple entity pattern detection
+    // Entity pattern detection with strict size bounds
     const words = text.split(/\s+/);
     words.forEach((w) => {
       if (w.match(/^[A-Z][a-z]{3,}$/)) {
         if (['PostgreSQL', 'DynamoDB', 'Docker', 'Kubernetes', 'Python', 'React', 'Tauri'].includes(w)) {
-          this.projects.add(w);
+          if (this.projects.size < 50) this.projects.add(w);
         }
       }
     });
 
     if (text.length > 30 && (text.includes('decide') || text.includes('agree') || text.includes('promise'))) {
-      this.extractedFacts.add(`${segment.speaker.name}: "${text.slice(0, 60)}..."`);
+      if (this.extractedFacts.size < 50) {
+        this.extractedFacts.add(`${segment.speaker.name}: "${text.slice(0, 60)}..."`);
+      }
     }
   }
 
@@ -79,6 +82,7 @@ export class RollingContextManager {
         companies: Array.from(this.companies),
       },
       previousSuggestions: this.previousSuggestions,
+      recentTranscript: this.segments.slice(-10),
     };
   }
 

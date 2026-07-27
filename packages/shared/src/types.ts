@@ -105,6 +105,7 @@ export interface LLMConfig {
   model?: string;
   temperature?: number;
   endpoint?: string;
+  ollamaEndpoint?: string;
   suggestionAggressiveness?: 'low' | 'medium' | 'high';
 }
 
@@ -142,3 +143,35 @@ export interface AppSettings {
   visionOCR: boolean;
 }
 
+export const DEFAULT_SETTINGS: AppSettings = {
+  audio: {
+    captureSystemAudio: true,
+    captureMicrophone: true,
+    sampleRate: 16000,
+    vadThreshold: 0.15,
+    noiseSuppression: true,
+  },
+  stt: {
+    provider: 'webspeech',
+    continuous: true,
+    language: 'en-US',
+  },
+  llm: {
+    provider: 'mock',
+    temperature: 0.2,
+    suggestionAggressiveness: 'medium',
+  },
+  overlay: {
+    alwaysOnTop: true,
+    opacity: 0.95,
+    fontSize: 'md',
+    position: { x: 20, y: 20 },
+    isCollapsed: false,
+    shortcut: 'Ctrl+Shift+Space',
+  },
+  theme: 'glass-dark',
+  autoGenerateNotes: true,
+  adaptiveProfile: 'terse-technical',
+  isOfflineOnly: false,
+  visionOCR: true,
+};
