@@ -11,8 +11,10 @@ import {
   Maximize2,
   Minimize2,
   Zap,
+  Keyboard,
 } from 'lucide-react';
 import { useAppStore } from '../../stores/appStore';
+import { GhostTypingRelay } from '@answer-bubble/shared';
 
 export const FloatingBubbleOverlay: React.FC = () => {
   const {
@@ -180,6 +182,19 @@ export const FloatingBubbleOverlay: React.FC = () => {
                   </div>
 
                   <div className="flex items-center space-x-1">
+                    <button
+                      onClick={async () => {
+                        await GhostTypingRelay.typeIntoFocusedWindow(activeSuggestion.text);
+                        setCopiedId(activeSuggestion.id);
+                        setTimeout(() => setCopiedId(null), 2000);
+                      }}
+                      className="flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600/50 hover:bg-emerald-600/80 text-emerald-100 transition-colors shadow-md"
+                      title="Ghost Type into active input window"
+                    >
+                      <Keyboard className="w-3 h-3" />
+                      <span>{copiedId === activeSuggestion.id ? 'Typed!' : 'Ghost Type'}</span>
+                    </button>
+
                     <button
                       onClick={() => handleCopy(activeSuggestion.text, activeSuggestion.id)}
                       className="flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-600/50 hover:bg-indigo-600/80 text-indigo-100 transition-colors shadow-md"

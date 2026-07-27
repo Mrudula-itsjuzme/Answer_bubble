@@ -10,6 +10,8 @@ import { SettingsModal } from './components/settings/SettingsModal';
 import { MeetingTimeline } from './components/timeline/MeetingTimeline';
 import { FollowupAssistant } from './components/followup/FollowupAssistant';
 import { ConversationGraphViewer } from './components/graph/ConversationGraphViewer';
+import { StealthAuditConsole } from './components/audit/StealthAuditConsole';
+import { MeetingRecorderModal } from './components/mom/MeetingRecorderModal';
 import { FloatingBubbleOverlay } from './components/overlay/FloatingBubbleOverlay';
 import { CommandPalette } from './components/common/CommandPalette';
 
@@ -29,12 +31,14 @@ export function App() {
         {/* Dynamic View Viewport */}
         <main className="flex-1 p-6 overflow-hidden">
           {activeView === 'dashboard' && <LiveMeetingDashboard />}
+          {activeView === 'mom' && <MeetingRecorderModal />}
           {activeView === 'timeline' && <MeetingTimeline />}
           {activeView === 'graph' && <ConversationGraphViewer />}
           {activeView === 'followup' && <FollowupAssistant />}
           {activeView === 'notes' && <NotesViewer />}
           {activeView === 'search' && <MemorySearch />}
           {activeView === 'history' && <MeetingHistory />}
+          {activeView === 'audit' && <StealthAuditConsole />}
           {activeView === 'settings' && <SettingsModal />}
         </main>
       </div>

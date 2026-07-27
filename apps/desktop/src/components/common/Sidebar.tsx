@@ -11,6 +11,8 @@ import {
   Mail,
   Eye,
   ShieldCheck,
+  Terminal,
+  Mic,
 } from 'lucide-react';
 import { useAppStore } from '../../stores/appStore';
 
@@ -19,18 +21,20 @@ export const Sidebar: React.FC = () => {
 
   const navItems = [
     { id: 'dashboard', label: 'Live Dashboard', icon: LayoutDashboard },
+    { id: 'mom', label: 'Recorder (MoM)', icon: Mic },
     { id: 'timeline', label: 'Scrubber Timeline', icon: Clock },
     { id: 'graph', label: 'Conversation Graph', icon: GitGraph },
     { id: 'followup', label: 'Follow-Up Assistant', icon: Mail },
     { id: 'notes', label: 'Meeting Notes', icon: FileText },
     { id: 'search', label: 'Memory Search', icon: Search },
     { id: 'history', label: 'Archive & History', icon: History },
+    { id: 'audit', label: 'Stealth Audit Console', icon: Terminal },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (
     <aside className="w-64 glass-panel border-r border-white/10 p-4 flex flex-col justify-between h-[calc(100vh-4rem)] select-none">
-      <div className="space-y-1">
+      <div className="space-y-1 overflow-y-auto custom-scrollbar pr-1">
         <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono flex items-center justify-between">
           <span>Navigation</span>
           {settings.isOfflineOnly && (
@@ -47,7 +51,7 @@ export const Sidebar: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveView(item.id as any)}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+              className={`w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
                 isActive
                   ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/20'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
@@ -78,7 +82,7 @@ export const Sidebar: React.FC = () => {
           )}
         </div>
         <p className="text-[10px] text-slate-400 leading-tight">
-          Adaptive prompts tailoring suggestions for maximum contextual clarity.
+          DPAPI Encrypted keys & Instant AI (Ctrl+I) active.
         </p>
       </div>
     </aside>

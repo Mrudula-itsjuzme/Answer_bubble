@@ -19,8 +19,8 @@ import { LocalMeetingStore, MemorySearchEngine, SearchResult } from '@answer-bub
 
 interface AppState {
   // Navigation & View
-  activeView: 'dashboard' | 'history' | 'search' | 'notes' | 'settings' | 'timeline' | 'followup' | 'graph';
-  setActiveView: (view: 'dashboard' | 'history' | 'search' | 'notes' | 'settings' | 'timeline' | 'followup' | 'graph') => void;
+  activeView: 'dashboard' | 'history' | 'search' | 'notes' | 'settings' | 'timeline' | 'followup' | 'graph' | 'audit' | 'mom';
+  setActiveView: (view: 'dashboard' | 'history' | 'search' | 'notes' | 'settings' | 'timeline' | 'followup' | 'graph' | 'audit' | 'mom') => void;
 
   // Settings
   settings: AppSettings;
