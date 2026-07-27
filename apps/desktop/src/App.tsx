@@ -7,6 +7,9 @@ import { NotesViewer } from './components/notes/NotesViewer';
 import { MemorySearch } from './components/search/MemorySearch';
 import { MeetingHistory } from './components/history/MeetingHistory';
 import { SettingsModal } from './components/settings/SettingsModal';
+import { MeetingTimeline } from './components/timeline/MeetingTimeline';
+import { FollowupAssistant } from './components/followup/FollowupAssistant';
+import { ConversationGraphViewer } from './components/graph/ConversationGraphViewer';
 import { FloatingBubbleOverlay } from './components/overlay/FloatingBubbleOverlay';
 import { CommandPalette } from './components/common/CommandPalette';
 
@@ -26,6 +29,9 @@ export function App() {
         {/* Dynamic View Viewport */}
         <main className="flex-1 p-6 overflow-hidden">
           {activeView === 'dashboard' && <LiveMeetingDashboard />}
+          {activeView === 'timeline' && <MeetingTimeline />}
+          {activeView === 'graph' && <ConversationGraphViewer />}
+          {activeView === 'followup' && <FollowupAssistant />}
           {activeView === 'notes' && <NotesViewer />}
           {activeView === 'search' && <MemorySearch />}
           {activeView === 'history' && <MeetingHistory />}

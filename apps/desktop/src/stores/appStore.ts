@@ -19,8 +19,8 @@ import { LocalMeetingStore, MemorySearchEngine, SearchResult } from '@answer-bub
 
 interface AppState {
   // Navigation & View
-  activeView: 'dashboard' | 'history' | 'search' | 'notes' | 'settings';
-  setActiveView: (view: 'dashboard' | 'history' | 'search' | 'notes' | 'settings') => void;
+  activeView: 'dashboard' | 'history' | 'search' | 'notes' | 'settings' | 'timeline' | 'followup' | 'graph';
+  setActiveView: (view: 'dashboard' | 'history' | 'search' | 'notes' | 'settings' | 'timeline' | 'followup' | 'graph') => void;
 
   // Settings
   settings: AppSettings;
@@ -82,7 +82,7 @@ export const useAppStore = create<AppState>((set, get) => {
   });
 
   globalEventBus.on<{ speakerName: string; isUser: boolean; text: string; isFinal: boolean }>('simulated-transcript-chunk', async (data) => {
-    const { activeMeeting } = get();
+    const { activeMeeting, settings } = get();
     if (!activeMeeting || !activeMeeting.isActive) return;
 
     const speaker = diarizer.getOrCreateSpeaker(data.speakerName, data.isUser);
@@ -108,9 +108,15 @@ export const useAppStore = create<AppState>((set, get) => {
       },
     });
 
-    // Intelligent Suggestion Engine Evaluation
+    // Intelligent Suggestion Engine Evaluation with Adaptive Profile
     if (data.text.includes('?') || data.text.toLowerCase().includes('how') || data.text.toLowerCase().includes('cost')) {
-      const suggestion = await suggestionEngine.evaluateContext(contextManager, activeMeeting.id, data.text);
+      const suggestion = await suggestionEngine.evaluateContext(
+        contextManager,
+        activeMeeting.id,
+        data.text,
+        settings.adaptiveProfile,
+        settings.visionOCR ? '[SHARED SCREEN: "Architecture & Quantization Benchmarks"]' : ''
+      );
       if (suggestion) {
         set((state) => ({
           currentSuggestions: [suggestion, ...state.currentSuggestions].slice(0, 5),
@@ -151,6 +157,9 @@ export const useAppStore = create<AppState>((set, get) => {
       },
       theme: 'dark',
       autoGenerateNotes: true,
+      adaptiveProfile: 'terse-technical',
+      isOfflineOnly: false,
+      visionOCR: true,
     },
 
     updateSettings: (partial) =>

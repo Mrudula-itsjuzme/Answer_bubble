@@ -1,0 +1,9 @@
+{
+  "name": "@answer-bubble/vision",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@answer-bubble/shared": "*"
+  }
+}

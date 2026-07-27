@@ -117,6 +117,12 @@ export interface AudioDeviceConfig {
   noiseSuppression: boolean;
 }
 
+export type AdaptiveProfileType =
+  | 'terse-technical'
+  | 'reminder-coaching'
+  | 'followup-interrogator'
+  | 'star-interview';
+
 export interface AppSettings {
   audio: AudioDeviceConfig;
   stt: STTConfig;
@@ -131,4 +137,8 @@ export interface AppSettings {
   };
   theme: 'dark' | 'glass-dark' | 'cyberpunk-dark';
   autoGenerateNotes: boolean;
+  adaptiveProfile: AdaptiveProfileType;
+  isOfflineOnly: boolean;
+  visionOCR: boolean;
 }
+
