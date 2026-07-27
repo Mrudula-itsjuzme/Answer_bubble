@@ -1,0 +1,13 @@
+{
+  "name": "@answer-bubble/audio",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@answer-bubble/shared": "*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

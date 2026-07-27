@@ -1,0 +1,18 @@
+[package]
+name = "answer-bubble"
+version = "1.0.0"
+description = "AnswerBubble — Translucent Desktop AI Meeting Copilot"
+authors = ["AnswerBubble Team"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-rc.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0-rc.0", features = ["tray-icon"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

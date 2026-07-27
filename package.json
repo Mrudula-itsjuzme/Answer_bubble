@@ -1,0 +1,19 @@
+{
+  "name": "answer-bubble-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Desktop AI Meeting Copilot - Real-time floating assistant bubble, transcription, structured notes, and semantic memory search",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/desktop",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "tsc --noEmit --composite false",
+    "clean": "rimraf dist node_modules packages/*/dist apps/*/dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
