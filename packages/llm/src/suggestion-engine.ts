@@ -1,6 +1,7 @@
 import { LLMConfig, MeetingType, Suggestion, AdaptiveProfileType, countWords, truncateToWordLimit, generateId, DEFAULT_SETTINGS } from '@answer-bubble/shared';
 import { RollingContextManager } from './context-manager';
 import { LLMFailoverEngine } from './failover-engine';
+import { QuestionDetector, QuestionDetectionResult } from './question-detector';
 
 export class IntelligentSuggestionEngine {
   private config: LLMConfig;
@@ -52,7 +53,8 @@ RULES:
     meetingId: string,
     currentQuestionText: string = '',
     profile: AdaptiveProfileType = 'terse-technical',
-    visualContext = ''
+    visualContext = '',
+    questionCategory?: string
   ): Promise<Suggestion | null> {
     const context = contextManager.getFormattedContext();
     const systemPrompt = this.getSystemPrompt(context.meetingType, profile, visualContext);
@@ -84,6 +86,7 @@ RULES:
       text: constrainedText,
       wordCount: wordNum,
       triggeredByQuestion: currentQuestionText,
+      questionCategory: questionCategory || QuestionDetector.detect(currentQuestionText).category,
       meetingType: context.meetingType,
     };
 

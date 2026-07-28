@@ -12,6 +12,7 @@ import {
   Minimize2,
   Zap,
   Keyboard,
+  HelpCircle,
 } from 'lucide-react';
 import { useAppStore } from '../../stores/appStore';
 import { GhostTypingRelay } from '@answer-bubble/shared';
@@ -89,7 +90,7 @@ export const FloatingBubbleOverlay: React.FC = () => {
               className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-[10px] font-bold tracking-wider px-3 py-0.5 rounded-full shadow-lg flex items-center space-x-1"
             >
               <Zap className="w-3 h-3 text-amber-300 animate-bounce" />
-              <span>ANSWER POPPED!</span>
+              <span>INSTANT ANSWER POPPED!</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -114,7 +115,7 @@ export const FloatingBubbleOverlay: React.FC = () => {
               </span>
               <div className="flex items-center space-x-1 text-[10px] text-slate-400">
                 <Volume2 className="w-3 h-3 text-emerald-400" />
-                <span>{isCapturing ? 'Listening System Audio' : 'Standby'}</span>
+                <span>{isCapturing ? 'Real-Time Q&A Active' : 'Standby'}</span>
               </div>
             </div>
           </div>
@@ -162,8 +163,19 @@ export const FloatingBubbleOverlay: React.FC = () => {
               >
                 {/* Question Trigger Badge */}
                 {activeSuggestion.triggeredByQuestion && (
-                  <div className="text-[11px] text-indigo-300/90 bg-indigo-950/60 p-2 rounded-xl border border-indigo-500/30 italic truncate">
-                    "{activeSuggestion.triggeredByQuestion}"
+                  <div className="text-[11px] text-purple-200 bg-purple-950/70 p-2.5 rounded-xl border border-purple-500/40 font-medium flex flex-col space-y-1">
+                    <div className="flex items-center justify-between text-[9px] uppercase font-mono text-purple-300">
+                      <span className="flex items-center space-x-1">
+                        <HelpCircle className="w-3 h-3 text-purple-300" />
+                        <span>Identified Question</span>
+                      </span>
+                      {activeSuggestion.questionCategory && (
+                        <span className="bg-purple-500/30 px-1.5 py-0.5 rounded text-purple-200 font-bold">
+                          {activeSuggestion.questionCategory}
+                        </span>
+                      )}
+                    </div>
+                    <p className="italic text-slate-100 font-normal truncate">"{activeSuggestion.triggeredByQuestion}"</p>
                   </div>
                 )}
 

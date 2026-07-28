@@ -13,7 +13,7 @@ import {
 } from '@answer-bubble/shared';
 import { AudioStreamManager } from '@answer-bubble/audio';
 import { SpeakerDiarizationEngine } from '@answer-bubble/diarization';
-import { RollingContextManager, IntelligentSuggestionEngine } from '@answer-bubble/llm';
+import { RollingContextManager, IntelligentSuggestionEngine, QuestionDetector } from '@answer-bubble/llm';
 import { StructuredNoteGenerator, MeetingTypeDetector } from '@answer-bubble/notes';
 import { LocalMeetingStore, MemorySearchEngine, SearchResult } from '@answer-bubble/memory';
 
@@ -81,11 +81,13 @@ export const useAppStore = create<AppState>((set, get) => {
     set({ audioLevel: level, isSpeaking });
   });
 
-  globalEventBus.on<{ speakerName: string; isUser: boolean; text: string; isFinal: boolean }>('simulated-transcript-chunk', async (data) => {
+  const processIncomingTranscript = async (data: { speakerName: string; isUser: boolean; text: string; isFinal: boolean }) => {
     const { activeMeeting, settings } = get();
     if (!activeMeeting || !activeMeeting.isActive) return;
 
+    const qRes = QuestionDetector.detect(data.text);
     const speaker = diarizer.getOrCreateSpeaker(data.speakerName, data.isUser);
+    
     const newSegment: TranscriptSegment = {
       id: generateId('seg'),
       meetingId: activeMeeting.id,
@@ -95,6 +97,9 @@ export const useAppStore = create<AppState>((set, get) => {
       text: data.text,
       confidence: 0.95,
       isFinal: data.isFinal,
+      isQuestion: qRes.isQuestion,
+      questionCategory: qRes.category,
+      questionConfidence: qRes.confidence,
     };
 
     contextManager.addSegment(newSegment);
@@ -108,14 +113,15 @@ export const useAppStore = create<AppState>((set, get) => {
       },
     });
 
-    // Intelligent Suggestion Engine Evaluation with Adaptive Profile
-    if (data.text.includes('?') || data.text.toLowerCase().includes('how') || data.text.toLowerCase().includes('cost')) {
+    // Immediate Real-Time Question & Answer Evaluation
+    if (qRes.isQuestion) {
       const suggestion = await suggestionEngine.evaluateContext(
         contextManager,
         activeMeeting.id,
         data.text,
         settings.adaptiveProfile,
-        settings.visionOCR ? '[SHARED SCREEN: "Architecture & Quantization Benchmarks"]' : ''
+        settings.visionOCR ? '[SHARED SCREEN: "Architecture & Quantization Benchmarks"]' : '',
+        qRes.category
       );
       if (suggestion) {
         set((state) => ({
@@ -126,7 +132,10 @@ export const useAppStore = create<AppState>((set, get) => {
         }));
       }
     }
-  });
+  };
+
+  globalEventBus.on<{ speakerName: string; isUser: boolean; text: string; isFinal: boolean }>('simulated-transcript-chunk', processIncomingTranscript);
+  globalEventBus.on<{ speakerName: string; isUser: boolean; text: string; isFinal: boolean }>('real-transcript-chunk', processIncomingTranscript);
 
   return {
     activeView: 'dashboard',

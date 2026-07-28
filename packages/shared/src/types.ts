@@ -23,6 +23,9 @@ export interface TranscriptSegment {
   text: string;
   confidence: number;
   isFinal: boolean;
+  isQuestion?: boolean;
+  questionCategory?: string;
+  questionConfidence?: number;
 }
 
 export interface Suggestion {
@@ -32,6 +35,7 @@ export interface Suggestion {
   text: string; // 1-3 lines, max 25 words
   wordCount: number;
   triggeredByQuestion: string;
+  questionCategory?: string;
   accepted?: boolean;
   meetingType: MeetingType;
 }
