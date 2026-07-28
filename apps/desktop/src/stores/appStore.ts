@@ -150,7 +150,8 @@ export const useAppStore = create<AppState>((set, get) => {
         noiseSuppression: true,
       },
       stt: {
-        provider: 'mock',
+        provider: 'elevenlabs',
+        agentId: 'agent_4401kyn1n65kftqtkgrexyxyvj6c',
       },
       llm: {
         provider: 'mock',

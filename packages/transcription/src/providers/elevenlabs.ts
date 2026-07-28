@@ -11,21 +11,25 @@ export class ElevenLabsSTTProvider implements STTProvider {
   private websocket: WebSocket | null = null;
 
   public async connect(config: STTConfig): Promise<void> {
-    if (!config.apiKey) {
-      console.warn('[ELEVENLABS_STT]: API key missing. Operating in fallback mode.');
+    if (!config.apiKey && !config.agentId) {
+      console.warn('[ELEVENLABS_STT]: Neither API key nor agentId provided. Operating in fallback mode.');
       return;
     }
 
     try {
-      const url = `wss://api.elevenlabs.io/v1/speech-to-text/stream?model_id=scribe_v1`;
+      const url = config.agentId
+        ? `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${config.agentId}`
+        : `wss://api.elevenlabs.io/v1/speech-to-text/stream?model_id=${config.model || 'scribe_v1'}`;
+
       this.websocket = new WebSocket(url);
 
       this.websocket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.text) {
+          const transcriptText = data.text || data.user_transcription || data.transcript;
+          if (transcriptText) {
             this.emitTranscript({
-              text: data.text,
+              text: transcriptText,
               confidence: data.confidence || 0.96,
               isFinal: data.is_final ?? true,
             });

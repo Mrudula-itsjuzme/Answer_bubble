@@ -98,6 +98,7 @@ export type LLMProviderType =
 export interface STTConfig {
   provider: STTProviderType;
   apiKey?: string;
+  agentId?: string;
   model?: string;
   endpoint?: string;
   language?: string;
