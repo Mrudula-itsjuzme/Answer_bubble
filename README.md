@@ -59,7 +59,7 @@ graph TD
 
 | Provider Type | Supported Engines / Models | Connection Mode | Offline Capable |
 | :--- | :--- | :--- | :--- |
-| **Speech-to-Text (STT)** | Deepgram Live Streaming (`nova-2`), OpenAI Whisper API, Whisper.cpp Local Server, WebSpeech API | WebSockets / HTTP / Native Web | :white_check_mark: (Whisper.cpp / WebSpeech) |
+| **Speech-to-Text (STT)** | ElevenLabs Scribe & Conversational AI (`agent_id`), Deepgram Live Streaming (`nova-2`), OpenAI Whisper API, Whisper.cpp Local Server, WebSpeech API | WebSockets / HTTP / Native Web | :white_check_mark: (Whisper.cpp / WebSpeech) |
 | **LLM Provider** | OpenAI (`gpt-4o`, `gpt-4o-mini`), Anthropic Claude (`claude-3-5-sonnet`), OpenRouter, Ollama (`llama3`, `mistral`), Built-in Fallback Engine | REST / SSE | :white_check_mark: (Ollama Local) |
 
 ---
