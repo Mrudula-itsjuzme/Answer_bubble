@@ -51,8 +51,11 @@ export class AudioStreamManager {
 
       const audioTracks: MediaStreamTrack[] = [];
 
-      // 1. Microphone capture
-      if (this.config.captureMicrophone && navigator.mediaDevices) {
+      // 1. Microphone capture (Reuse existing live stream if available to skip permission prompt)
+      const isMicLive = this.micStream && this.micStream.getAudioTracks().some((t) => t.readyState === 'live');
+      if (isMicLive && this.micStream) {
+        audioTracks.push(...this.micStream.getAudioTracks());
+      } else if (this.config.captureMicrophone && navigator.mediaDevices) {
         try {
           this.micStream = await navigator.mediaDevices.getUserMedia({
             audio: {
@@ -67,15 +70,17 @@ export class AudioStreamManager {
         }
       }
 
-      // 2. System Audio (Display / Loopback stream)
-      if (this.config.captureSystemAudio && navigator.mediaDevices?.getDisplayMedia) {
+      // 2. System Audio (Reuse existing live display stream if available)
+      const isSysLive = this.systemStream && this.systemStream.getAudioTracks().some((t) => t.readyState === 'live');
+      if (isSysLive && this.systemStream) {
+        audioTracks.push(...this.systemStream.getAudioTracks());
+      } else if (this.config.captureSystemAudio && navigator.mediaDevices?.getDisplayMedia) {
         try {
           this.systemStream = await navigator.mediaDevices.getDisplayMedia({
-            video: true, // DisplayMedia requires video requested
+            video: true,
             audio: true,
           });
           
-          // Stop video track since we only want system audio
           this.systemStream.getVideoTracks().forEach((track) => track.stop());
           const sysAudioTracks = this.systemStream.getAudioTracks();
           if (sysAudioTracks.length > 0) {
@@ -87,8 +92,9 @@ export class AudioStreamManager {
       }
 
       if (audioTracks.length === 0) {
-        console.warn('No physical audio input streams active. Falling back to simulation mode.');
-        this.startCapture('simulation', scenario);
+        console.warn('No physical audio input streams active. Audio Manager will run in visual-only mode.');
+        this.isCapturing = true;
+        this.eventBus.emit('audio-stream-status', { status: 'capturing', mode: 'real' });
         return;
       }
 
@@ -126,8 +132,7 @@ export class AudioStreamManager {
       this.eventBus.emit('audio-stream-status', { status: 'capturing', mode: 'real' });
     } catch (err) {
       console.error('Failed to initialize audio capture:', err);
-      // Automatic failover to simulation mode so app remains 100% usable
-      this.startCapture('simulation', scenario);
+      this.eventBus.emit('audio-stream-status', { status: 'stopped', mode: 'none' });
     }
   }
 
@@ -142,16 +147,6 @@ export class AudioStreamManager {
     if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
       this.mediaRecorder.stop();
       this.mediaRecorder = null;
-    }
-
-    if (this.micStream) {
-      this.micStream.getTracks().forEach((track) => track.stop());
-      this.micStream = null;
-    }
-
-    if (this.systemStream) {
-      this.systemStream.getTracks().forEach((track) => track.stop());
-      this.systemStream = null;
     }
 
     if (this.audioContext) {

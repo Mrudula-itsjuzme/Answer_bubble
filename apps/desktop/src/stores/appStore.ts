@@ -16,6 +16,7 @@ import { SpeakerDiarizationEngine } from '@answer-bubble/diarization';
 import { RollingContextManager, IntelligentSuggestionEngine, QuestionDetector } from '@answer-bubble/llm';
 import { StructuredNoteGenerator, MeetingTypeDetector } from '@answer-bubble/notes';
 import { LocalMeetingStore, MemorySearchEngine, SearchResult } from '@answer-bubble/memory';
+import { STTProviderRegistry } from '@answer-bubble/transcription';
 
 interface AppState {
   // Navigation & View
@@ -32,17 +33,18 @@ interface AppState {
   overlayPosition: { x: number; y: number };
   setOverlayPosition: (pos: { x: number; y: number }) => void;
 
-  // Audio & Meeting State
+  // Real-time Audio & STT State
   isCapturing: boolean;
   audioLevel: number;
   isSpeaking: boolean;
   captureMode: 'real' | 'simulation';
   
+  // Active Meeting Data
   activeMeeting: Meeting | null;
   selectedMeetingId: string | null;
   setSelectedMeetingId: (id: string | null) => void;
 
-  // Real-time suggestions & transcripts
+  // Copilot Suggestions
   currentSuggestions: Suggestion[];
   pinnedSuggestion: Suggestion | null;
   setPinnedSuggestion: (sug: Suggestion | null) => void;
@@ -70,10 +72,18 @@ interface AppState {
 // Singletons
 const diarizer = new SpeakerDiarizationEngine();
 const contextManager = new RollingContextManager('technical');
-const suggestionEngine = new IntelligentSuggestionEngine();
+const suggestionEngine = new IntelligentSuggestionEngine({
+  provider: 'openrouter',
+  apiKey: import.meta.env.VITE_OPENROUTER_API_KEY || '',
+  model: 'openai/gpt-4o-mini',
+  agentId: 'agent_4401kyn1n65kftqtkgrexyxyvj6c',
+  suggestionAggressiveness: 'medium',
+});
 const localStore = new LocalMeetingStore();
 const searchEngine = new MemorySearchEngine(localStore);
 const audioManager = new AudioStreamManager(globalEventBus);
+const sttRegistry = new STTProviderRegistry();
+let sttUnsubscribe: (() => void) | null = null;
 
 export const useAppStore = create<AppState>((set, get) => {
   // Global Event Listeners Setup
@@ -81,9 +91,16 @@ export const useAppStore = create<AppState>((set, get) => {
     set({ audioLevel: level, isSpeaking });
   });
 
+  globalEventBus.on<Blob | ArrayBuffer>('audio-chunk', (chunk) => {
+    const activeProvider = sttRegistry.getActiveProvider();
+    if (activeProvider) {
+      activeProvider.sendAudioChunk(chunk);
+    }
+  });
+
   const processIncomingTranscript = async (data: { speakerName: string; isUser: boolean; text: string; isFinal: boolean }) => {
     const { activeMeeting, settings } = get();
-    if (!activeMeeting || !activeMeeting.isActive) return;
+    if (!activeMeeting || !activeMeeting.isActive || !data.text.trim()) return;
 
     const qRes = QuestionDetector.detect(data.text);
     const speaker = diarizer.getOrCreateSpeaker(data.speakerName, data.isUser);
@@ -104,7 +121,14 @@ export const useAppStore = create<AppState>((set, get) => {
 
     contextManager.addSegment(newSegment);
 
-    const updatedSegments = [...activeMeeting.segments, newSegment];
+    const lastSeg = activeMeeting.segments[activeMeeting.segments.length - 1];
+    let updatedSegments: TranscriptSegment[];
+    if (lastSeg && !lastSeg.isFinal) {
+      updatedSegments = [...activeMeeting.segments.slice(0, -1), newSegment];
+    } else {
+      updatedSegments = [...activeMeeting.segments, newSegment];
+    }
+
     set({
       activeMeeting: {
         ...activeMeeting,
@@ -150,11 +174,13 @@ export const useAppStore = create<AppState>((set, get) => {
         noiseSuppression: true,
       },
       stt: {
-        provider: 'elevenlabs',
-        agentId: 'agent_4401kyn1n65kftqtkgrexyxyvj6c',
+        provider: 'mock',
       },
       llm: {
-        provider: 'mock',
+        provider: 'openrouter',
+        apiKey: import.meta.env.VITE_OPENROUTER_API_KEY || '',
+        model: 'openai/gpt-4o-mini',
+        agentId: 'agent_4401kyn1n65kftqtkgrexyxyvj6c',
         suggestionAggressiveness: 'medium',
       },
       overlay: {
@@ -212,7 +238,7 @@ export const useAppStore = create<AppState>((set, get) => {
     isCommandPaletteOpen: false,
     setIsCommandPaletteOpen: (open) => set({ isCommandPaletteOpen: open }),
 
-    startMeeting: async (meetingType = 'technical', mode = 'simulation') => {
+    startMeeting: async (meetingType = 'technical', mode = 'real') => {
       diarizer.reset();
       contextManager.reset();
       contextManager.setMeetingType(meetingType);
@@ -238,6 +264,43 @@ export const useAppStore = create<AppState>((set, get) => {
         captureMode: mode,
         currentSuggestions: [],
       });
+
+      if (sttUnsubscribe) {
+        sttUnsubscribe();
+        sttUnsubscribe = null;
+      }
+
+      if (mode === 'real') {
+        const { settings } = get();
+        try {
+          let provider;
+          try {
+            provider = await sttRegistry.selectProvider(settings.stt.provider, settings.stt);
+          } catch (sttErr) {
+            console.warn(`[STT_REGISTRY]: Primary STT provider '${settings.stt.provider}' failed. Falling back to WebSpeech/Mock.`, sttErr);
+            provider = await sttRegistry.selectProvider('webspeech', settings.stt);
+          }
+
+          if (provider.id === 'webspeech') {
+            audioManager.updateConfig({ captureMicrophone: false });
+          } else {
+            audioManager.updateConfig({ captureMicrophone: settings.audio?.captureMicrophone ?? true });
+          }
+
+          sttUnsubscribe = provider.onTranscript((seg) => {
+            if (seg.text) {
+              processIncomingTranscript({
+                speakerName: seg.speaker?.name || 'Speaker 1',
+                isUser: false,
+                text: seg.text,
+                isFinal: seg.isFinal ?? true,
+              });
+            }
+          });
+        } catch (err) {
+          console.warn('[STT_REGISTRY]: Real STT provider initialization error:', err);
+        }
+      }
 
       await audioManager.startCapture(mode, meetingType);
     },

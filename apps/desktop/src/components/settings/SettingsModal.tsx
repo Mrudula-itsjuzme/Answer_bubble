@@ -139,6 +139,7 @@ export const SettingsModal: React.FC = () => {
                 className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-slate-200"
               >
                 <option value="mock">Mock Smart Generator (Built-in)</option>
+                <option value="elevenlabs">ElevenLabs Conversational AI</option>
                 <option value="ollama">Ollama (Local Server - Llama 3)</option>
                 <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
                 <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>

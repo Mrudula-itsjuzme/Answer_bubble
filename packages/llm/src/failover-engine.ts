@@ -2,6 +2,7 @@ import { LLMProviderType, AppSettings, logger } from '@answer-bubble/shared';
 import { generateOpenAISuggestion } from './adapters/openai';
 import { generateAnthropicSuggestion } from './adapters/anthropic';
 import { generateOpenRouterSuggestion } from './adapters/openrouter';
+import { generateElevenLabsLLMSuggestion } from './adapters/elevenlabs';
 import { generateOllamaSuggestion } from './adapters/ollama';
 import { generateMockSuggestion } from './adapters/mock';
 
@@ -17,7 +18,7 @@ export class LLMFailoverEngine {
   constructor(settings: AppSettings) {
     this.primaryAdapter = this.createAdapter(settings.llm.provider, settings);
     
-    const fallbackTypes: LLMProviderType[] = ['openrouter', 'ollama', 'mock'];
+    const fallbackTypes: LLMProviderType[] = ['elevenlabs', 'openrouter', 'ollama', 'mock'];
     this.fallbackAdapters = fallbackTypes
       .filter((p) => p !== settings.llm.provider)
       .map((p) => this.createAdapter(p, settings));
@@ -42,6 +43,12 @@ export class LLMFailoverEngine {
           name: 'OpenRouter',
           generateSuggestion: async (systemPrompt, userPrompt) =>
             generateOpenRouterSuggestion(settings.llm, { meetingType: 'technical', recentDialogue: userPrompt, extractedFacts: [], keyEntities: { people: [], projects: [], companies: [] }, previousSuggestions: [], recentTranscript: [] }, systemPrompt),
+        };
+      case 'elevenlabs':
+        return {
+          name: 'ElevenLabs LLM',
+          generateSuggestion: async (systemPrompt, userPrompt) =>
+            generateElevenLabsLLMSuggestion(settings.llm, { meetingType: 'technical', recentDialogue: userPrompt, extractedFacts: [], keyEntities: { people: [], projects: [], companies: [] }, previousSuggestions: [], recentTranscript: [] }, systemPrompt),
         };
       case 'ollama':
         return {

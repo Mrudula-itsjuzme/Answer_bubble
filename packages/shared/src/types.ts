@@ -92,6 +92,7 @@ export type LLMProviderType =
   | 'openai'
   | 'anthropic'
   | 'openrouter'
+  | 'elevenlabs'
   | 'ollama'
   | 'mock';
 
@@ -108,6 +109,7 @@ export interface STTConfig {
 export interface LLMConfig {
   provider: LLMProviderType;
   apiKey?: string;
+  agentId?: string;
   model?: string;
   temperature?: number;
   endpoint?: string;

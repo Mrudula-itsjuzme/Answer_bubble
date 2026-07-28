@@ -160,6 +160,17 @@ export const LiveMeetingDashboard: React.FC = () => {
             </div>
           </div>
 
+          {isCapturing && (
+            <div className="mt-3 px-4 py-2 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between text-xs text-indigo-200">
+              <div className="flex items-center space-x-2">
+                <Volume2 className="w-4 h-4 text-indigo-400 animate-pulse shrink-0" />
+                <span>
+                  <strong>Google Meet Multi-Speaker Tip:</strong> In Chrome's popup, pick <em>"Chrome Tab"</em> and check <strong>"Share tab audio"</strong> at bottom left to transcribe all participants!
+                </span>
+              </div>
+            </div>
+          )}
+
           <div
             ref={transcriptContainerRef}
             className="flex-1 overflow-y-auto custom-scrollbar my-4 space-y-4 pr-2 max-h-[500px]"

@@ -53,7 +53,28 @@ export class WebSpeechProvider implements STTProvider {
     };
 
     this.recognition.onerror = (err: any) => {
-      console.warn('WebSpeech error:', err);
+      if (err?.error === 'aborted' || err?.error === 'no-speech') {
+        return;
+      }
+      console.warn('[WEBSPEECH_ERROR]:', err?.error || err);
+    };
+
+    this.recognition.onend = () => {
+      if (this.isListening && this.recognition) {
+        try {
+          this.recognition.start();
+        } catch (_err) {
+          setTimeout(() => {
+            if (this.isListening && this.recognition) {
+              try {
+                this.recognition.start();
+              } catch (_e) {
+                // ignore
+              }
+            }
+          }, 100);
+        }
+      }
     };
 
     this.recognition.start();
@@ -72,9 +93,14 @@ export class WebSpeechProvider implements STTProvider {
   }
 
   public async disconnect(): Promise<void> {
-    if (this.recognition && this.isListening) {
-      this.recognition.stop();
-      this.isListening = false;
+    this.isListening = false;
+    if (this.recognition) {
+      try {
+        this.recognition.stop();
+      } catch (_e) {
+        // ignore
+      }
+      this.recognition = null;
     }
     this.callback = null;
   }
