@@ -22,9 +22,12 @@ export class StructuredLogger {
   // Regex patterns to automatically redact API keys and sensitive tokens
   private secretPatterns: RegExp[] = [
     /sk-proj-[a-zA-Z0-9_-]+/g,
+    /sk-or-v1-[a-zA-Z0-9_-]+/g,
     /sk-ant-[a-zA-Z0-9_-]+/g,
     /sk-[a-zA-Z0-9]{20,}/g,
     /gsk_[a-zA-Z0-9]{20,}/g,
+    /dg-[a-zA-Z0-9_-]{20,}/g,
+    /gladia_[a-zA-Z0-9_-]+/g,
     /Bearer\s+[a-zA-Z0-9._\--]+/gi,
     /key=[a-zA-Z0-9._\--]+/gi,
     /password=[^\s&]+/gi,

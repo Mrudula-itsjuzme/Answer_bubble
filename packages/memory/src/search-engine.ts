@@ -95,7 +95,18 @@ export class MemorySearchEngine {
       }
     });
 
-    // Sort by relevance score descending
-    return results.sort((a, b) => b.score - a.score).slice(0, 15);
+    // Sort by relevance score descending & deduplicate identical content
+    const uniqueResults: SearchResult[] = [];
+    const seen = new Set<string>();
+
+    results.sort((a, b) => b.score - a.score).forEach((item) => {
+      const key = `${item.meetingId}:${item.type}:${item.content}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueResults.push(item);
+      }
+    });
+
+    return uniqueResults.slice(0, 15);
   }
 }

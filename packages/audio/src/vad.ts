@@ -8,6 +8,7 @@ export class VoiceActivityDetector {
   private isSpeakingState: boolean = false;
   private speechHoldMs: number;
   private lastSpeechTime: number = 0;
+  private resultBuffer = { isSpeaking: false, rms: 0 };
 
   constructor(threshold: number = 0.015, speechHoldMs: number = 500) {
     this.threshold = threshold;
@@ -33,10 +34,9 @@ export class VoiceActivityDetector {
       this.isSpeakingState = false;
     }
 
-    return {
-      isSpeaking: this.isSpeakingState,
-      rms,
-    };
+    this.resultBuffer.isSpeaking = this.isSpeakingState;
+    this.resultBuffer.rms = rms;
+    return this.resultBuffer;
   }
 
   public processAnalyser(analyser: AnalyserNode, buffer: Uint8Array): { isSpeaking: boolean; rms: number } {
@@ -56,9 +56,8 @@ export class VoiceActivityDetector {
       this.isSpeakingState = false;
     }
 
-    return {
-      isSpeaking: this.isSpeakingState,
-      rms: normalizedRMS,
-    };
+    this.resultBuffer.isSpeaking = this.isSpeakingState;
+    this.resultBuffer.rms = normalizedRMS;
+    return this.resultBuffer;
   }
 }

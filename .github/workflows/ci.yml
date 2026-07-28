@@ -1,37 +1,37 @@
-name: AnswerBubble Production Release CI/CD
+name: AnswerBubble CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  hardening-pass:
-    name: Production Hardening & Build Verification
+  build-and-test:
+    name: Build & Test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install Monorepo Dependencies
+      - name: Install Dependencies
         run: npm ci
 
-      - name: TypeScript Workspace Typecheck
+      - name: Typecheck Workspace
         run: npm run typecheck
 
-      - name: Run Automated Vitest Test Suite
-        run: npx vitest run
+      - name: Run Test Suite
+        run: npm test
 
-      - name: Production Desktop Frontend Build
-        run: npm run build --workspace=apps/desktop
-
-      - name: Dependency Security Audit
-        run: npm audit --audit-level=high || true
+      - name: Build Monorepo
+        run: npm run build
