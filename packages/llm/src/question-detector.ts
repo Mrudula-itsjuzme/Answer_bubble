@@ -52,7 +52,7 @@ export class QuestionDetector {
     const hasQuestionMark = lower.includes('?');
 
     // 1. Check direct question mark
-    let score = hasQuestionMark ? 0.65 : 0.0;
+    let score = hasQuestionMark ? 0.70 : 0.0;
     let matchedPattern = hasQuestionMark ? 'question_mark' : '';
 
     // 2. Check interrogative word at start or clause boundary
@@ -60,21 +60,21 @@ export class QuestionDetector {
       lower.startsWith(word + ' ') || lower.includes('. ' + word + ' ') || lower.includes(', ' + word + ' ')
     );
     if (startsWithInterrogative) {
-      score += 0.35;
+      score += 0.55;
       matchedPattern = matchedPattern ? `${matchedPattern}+interrogative` : 'interrogative_word';
     }
 
     // 3. Check auxiliary inversions
     const hasAuxInversion = this.AUXILIARY_INVERSIONS.some((inv) => lower.includes(inv));
     if (hasAuxInversion) {
-      score += 0.30;
+      score += 0.50;
       matchedPattern = matchedPattern ? `${matchedPattern}+aux_inversion` : 'auxiliary_inversion';
     }
 
     // 4. Check inquiry phrases
     const hasInquiryPhrase = this.INQUIRY_PHRASES.some((phrase) => lower.includes(phrase));
     if (hasInquiryPhrase) {
-      score += 0.30;
+      score += 0.50;
       matchedPattern = matchedPattern ? `${matchedPattern}+inquiry_phrase` : 'inquiry_phrase';
     }
 
