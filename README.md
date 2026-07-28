@@ -102,6 +102,17 @@ npm run typecheck
 npm test
 ```
 
+### 📦 Packaging Native Desktop Application (.exe / .AppImage)
+
+```bash
+# Option A: Run from root directory
+npm run tauri build
+
+# Option B: Run directly inside desktop workspace
+cd apps/desktop
+npx tauri build
+```
+
 ---
 
 ## 📁 Repository Structure
