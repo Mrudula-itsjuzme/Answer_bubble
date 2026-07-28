@@ -3,6 +3,7 @@ import { STTProvider } from './types';
 import { OpenAIWhisperProvider } from './providers/openai-whisper';
 import { DeepgramProvider } from './providers/deepgram';
 import { GladiaProvider } from './providers/gladia';
+import { ElevenLabsSTTProvider } from './providers/elevenlabs';
 import { WhisperCppProvider } from './providers/whisper-cpp';
 import { WebSpeechProvider } from './providers/webspeech';
 import { MockSTTProvider } from './providers/mock';
@@ -15,6 +16,7 @@ export class STTProviderRegistry {
     this.registerProvider(new OpenAIWhisperProvider());
     this.registerProvider(new DeepgramProvider());
     this.registerProvider(new GladiaProvider());
+    this.registerProvider(new ElevenLabsSTTProvider());
     this.registerProvider(new WhisperCppProvider());
     this.registerProvider(new WebSpeechProvider());
     this.registerProvider(new MockSTTProvider());

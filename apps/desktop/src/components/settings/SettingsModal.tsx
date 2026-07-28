@@ -113,6 +113,7 @@ export const SettingsModal: React.FC = () => {
               >
                 <option value="mock">Mock Engine (Zero Setup / Demo)</option>
                 <option value="webspeech">Web Speech API (Browser Native)</option>
+                <option value="elevenlabs">ElevenLabs Scribe STT</option>
                 <option value="whisper-cpp">Whisper.cpp (Local Server)</option>
                 <option value="whisper-api">OpenAI Whisper API</option>
                 <option value="deepgram">Deepgram Live Streaming API</option>

@@ -83,6 +83,7 @@ export type STTProviderType =
   | 'whisper-api'
   | 'deepgram'
   | 'gladia'
+  | 'elevenlabs'
   | 'whisper-cpp'
   | 'webspeech'
   | 'mock';
