@@ -58,27 +58,38 @@ export const LiveMeetingDashboard: React.FC = () => {
       {/* Top Controller Bar */}
       <div className="glass-panel p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4 border border-white/10 shadow-xl">
         <div className="flex items-center space-x-4">
-          <div className="relative">
+          <div className="flex items-center space-x-2">
             <button
-              onClick={() => (isCapturing ? stopMeeting() : startMeeting(activeMeeting?.meetingType || 'technical', 'simulation'))}
+              onClick={() => (isCapturing ? stopMeeting() : startMeeting(activeMeeting?.meetingType || 'technical', 'real'))}
               className={`flex items-center space-x-3 px-6 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg ${
                 isCapturing
                   ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-red-600/30'
-                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-600/30'
+                  : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-600/30'
               }`}
             >
               {isCapturing ? (
                 <>
                   <Square className="w-4 h-4 fill-current" />
-                  <span>Stop Capture</span>
+                  <span>Stop Real GMeet Capture</span>
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4 fill-current" />
-                  <span>Start Copilot</span>
+                  <span>Start Real GMeet / Mic</span>
                 </>
               )}
             </button>
+
+            {!isCapturing && (
+              <button
+                onClick={() => startMeeting(activeMeeting?.meetingType || 'technical', 'simulation')}
+                className="px-4 py-3.5 rounded-xl font-medium text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-white/10 flex items-center space-x-2"
+                title="Run simulated sample meeting stream"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span>Demo Simulation</span>
+              </button>
+            )}
           </div>
 
           {/* Audio Signal Level Bar */}
